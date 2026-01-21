@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智眸·工业哨兵 - 工业缺陷检测智能体</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Oxanium:wght@400;600;800&family=Kanit:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #0a0a16;
+            color: #e0e0ff;
+            font-family: 'Exo 2', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* 工业风格背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(0, 100, 255, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 200, 255, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 30% 70%, rgba(0, 150, 200, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 70% 30%, rgba(0, 255, 200, 0.1) 0%, transparent 40%);
+            z-index: -2;
+        }
+        
+        /* 网格背景 */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 150, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 150, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部区域 */
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+        
+        .title-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.8rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 
+                0 0 10px rgba(0, 150, 255, 0.8),
+                0 0 20px rgba(0, 150, 255, 0.5),
+                0 0 30px rgba(0, 100, 255, 0.3);
+            background: linear-gradient(90deg, #00ccff, #00ffaa, #0099ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            background-size: 200% 100%;
+            animation: gradient-shift 4s infinite alternate;
+        }
+        
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        
+        /* 小标题完全居中样式 */
+        .subtitle-center {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin: 0 auto 50px auto;
+            color: #a0e0ff;
+            max-width: 900px;
+            line-height: 1.8;
+            text-align: center;
+            padding: 20px;
+            border: 1px solid rgba(0, 170, 255, 0.3);
+            border-radius: 10px;
+            background: rgba(0, 50, 100, 0.2);
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+            display: block;
+            width: fit-content;
+            width: -moz-fit-content;
+        }
+        
+        .subtitle-center::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 200, 255, 0.1), transparent);
+            transition: left 0.7s;
+        }
+        
+        .subtitle-center:hover::before {
+            left: 100%;
+        }
+        
+        /* 技术标签样式 - 统一字体美化版 */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .tech-tag {
+            background: linear-gradient(135deg, rgba(0, 100, 200, 0.3), rgba(0, 150, 255, 0.2));
+            border: 1px solid rgba(0, 200, 255, 0.5);
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #b0e0ff;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 15px rgba(0, 100, 255, 0.1);
+            min-width: 140px;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .tech-tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s;
+        }
+        
+        .tech-tag:hover {
+            background: linear-gradient(135deg, rgba(0, 150, 255, 0.4), rgba(0, 200, 255, 0.3));
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 
+                0 10px 25px rgba(0, 150, 255, 0.3),
+                0 0 30px rgba(0, 200, 255, 0.2),
+                inset 0 0 15px rgba(255, 255, 255, 0.1);
+            border-color: #00ccff;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(0, 200, 255, 0.7);
+        }
+        
+        .tech-tag:hover::before {
+            left: 100%;
+        }
+        
+        .tech-tag.clickable {
+            cursor: pointer;
+            animation: pulse-glow 2s infinite alternate;
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 5px 15px rgba(0, 100, 255, 0.1); }
+            100% { box-shadow: 0 5px 15px rgba(0, 100, 255, 0.1), 0 0 20px rgba(0, 200, 255, 0.3); }
+        }
+        
+        /* 主要内容区域 */
+        main {
+            padding: 80px 0;
+        }
+        
+        .section {
+            margin-bottom: 120px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s, transform 1s;
+        }
+        
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .section-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
+            color: rgba(0, 150, 255, 0.2);
+            margin-right: 20px;
+            line-height: 1;
+        }
+        
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            color: #00ccff;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #00ccff, transparent);
+        }
+        
+        .content-card {
+            background: rgba(10, 20, 40, 0.7);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            border-radius: 10px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 100, 255, 0.2);
+        }
+        
+        .content-subtitle {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: #00ffaa;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .content-subtitle i {
+            margin-right: 10px;
+            color: #00ccff;
+        }
+        
+        .content-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #c0d0ff;
+            margin-bottom: 20px;
+        }
+	/* ========== 创新点部分字体优化 ========== */
+	/* 1. 为"DINO"添加特殊样式 - 在现有CSS中添加 */
+	.dino-highlight {
+    	font-family: 'Montserrat', sans-serif;
+    	font-weight: 800;
+    	color: #ffaa00;
+   	 text-shadow: 
+        	0 0 10px rgba(255, 170, 0, 0.5),
+        	0 0 20px rgba(255, 170, 0, 0.3);
+    	background: linear-gradient(135deg, rgba(255, 170, 0, 0.1), transparent);
+    	padding: 2px 8px;
+    	border-radius: 5px;
+    	border-left: 3px solid #ffaa00;
+    	position: relative;
+    	display: inline-block;
+    	transition: all 0.3s ease;
+	}
+
+	.dino-highlight:hover {
+    	background: linear-gradient(135deg, rgba(255, 170, 0, 0.3), transparent);
+   	transform: translateY(-3px);
+    	box-shadow: 0 5px 15px rgba(255, 170, 0, 0.2);
+	}
+
+	/* 2. 为"Grounding DINO"添加特殊样式 */
+	.grounding-dino-special {
+    	font-family: 'Kanit', sans-serif;
+    	font-weight: 700;
+    	color: #ff5555;
+    	background: linear-gradient(135deg, rgba(255, 85, 85, 0.1), transparent);
+    	padding: 3px 10px;
+    	border-radius: 6px;
+    	border: 1px solid rgba(255, 85, 85, 0.3);
+    	display: inline-block;
+    	transition: all 0.3s ease;
+	}
+
+	.grounding-dino-special:hover {
+    	background: linear-gradient(135deg, rgba(255, 85, 85, 0.3), transparent);
+    	transform: translateY(-3px);
+    	box-shadow: 0 5px 20px rgba(255, 85, 85, 0.3);
+    	border-color: #ff5555;
+	}
+
+	/* 3. 创新点标题字体优化 - 替代现有的.feature-title */
+	.innovation-title {
+   	font-family: 'Montserrat', sans-serif;
+    	font-size: 1.4rem;
+    	font-weight: 700;
+    	color: #00ffaa;
+    	margin-bottom: 15px;
+    	line-height: 1.4;
+    	letter-spacing: 0.5px;
+	}
+
+	/* 4. 创新点内容字体优化 */
+	.innovation-content {
+    	font-family: 'Exo 2', sans-serif;
+    	font-size: 1.1rem;
+    	line-height: 1.8;
+    	color: #c0d0ff;
+    	margin-bottom: 20px;
+	}
+	
+        
+        .highlight {
+            color: #00ffaa;
+            font-weight: 600;
+            background: rgba(0, 255, 170, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .highlight:hover {
+            background: rgba(0, 255, 170, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 170, 0.2);
+        }
+        
+        .highlight-red {
+            color: #ff5555;
+            font-weight: 600;
+        }
+        
+        .highlight-green {
+            color: #55ff55;
+            font-weight: 600;
+        }
+        
+        /* 软件功能展示区域 */
+        .software-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .feature-card {
+            background: rgba(0, 30, 60, 0.6);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #00ccff, #00ffaa);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: #00ccff;
+            box-shadow: 0 15px 30px rgba(0, 100, 255, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #00ccff;
+            margin-bottom: 20px;
+        }
+        
+        .feature-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            color: #00ffaa;
+            margin-bottom: 15px;
+        }
+        
+        /* 图片展示区域 - 6张图片布局 */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .image-container {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            transition: all 0.4s;
+            height: 250px;
+        }
+        
+        .image-container:hover {
+            transform: scale(1.03);
+            border-color: #00ccff;
+            box-shadow: 0 10px 25px rgba(0, 100, 255, 0.4);
+        }
+        
+        .gallery-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .image-container:hover .gallery-image {
+            transform: scale(1.1);
+        }
+        
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 20, 40, 0.8);
+            padding: 15px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+        
+        .image-container:hover .image-overlay {
+            transform: translateY(0);
+        }
+        
+        .image-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: #00ccff;
+            margin-bottom: 5px;
+        }
+        
+        /* 数据统计区域 */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .stat-card {
+            background: rgba(0, 30, 60, 0.5);
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            border: 1px solid rgba(0, 150, 255, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: #00ccff;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 100, 255, 0.3);
+        }
+        
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: #00ffaa;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #a0d0ff;
+        }
+        
+        /* 软件优势区域 */
+        .advantage-list {
+            margin: 30px 0;
+        }
+        
+        .advantage-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0, 40, 80, 0.3);
+            border-radius: 8px;
+            border-left: 4px solid #00ccff;
+            transition: all 0.3s;
+        }
+        
+        .advantage-item:hover {
+            background: rgba(0, 60, 120, 0.4);
+            transform: translateX(10px);
+        }
+        
+        .advantage-icon {
+            font-size: 1.8rem;
+            color: #00ccff;
+            margin-right: 20px;
+            min-width: 40px;
+        }
+        
+        /* 技术架构图 - 改为图片展示 */
+        .architecture-diagram {
+            margin: 40px 0;
+            background: rgba(0, 20, 40, 0.6);
+            border-radius: 10px;
+            padding: 30px;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .architecture-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            color: #00ffaa;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .architecture-image-container {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            transition: all 0.4s;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .architecture-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s;
+        }
+        
+        .architecture-image-container:hover {
+            transform: scale(1.02);
+            border-color: #00ccff;
+            box-shadow: 0 10px 30px rgba(0, 100, 255, 0.4);
+        }
+        
+        .architecture-image-container:hover .architecture-image {
+            transform: scale(1.05);
+        }
+        
+        .architecture-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 20, 40, 0.8);
+            padding: 15px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+        
+        .architecture-image-container:hover .architecture-overlay {
+            transform: translateY(0);
+        }
+        
+        /* 视频播放区域 */
+        .video-section {
+            margin: 60px 0;
+            text-align: center;
+        }
+        
+        .video-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 100, 255, 0.3);
+            border: 2px solid rgba(0, 150, 255, 0.4);
+            background: #000;
+        }
+        
+        .video-player {
+            width: 100%;
+            height: 500px;
+            display: block;
+            background: #000;
+        }
+        
+        .video-controls {
+            background: rgba(0, 30, 60, 0.9);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .video-btn {
+            background: rgba(0, 150, 255, 0.3);
+            border: 1px solid #00ccff;
+            color: #00ccff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            transition: all 0.3s;
+        }
+        
+        .video-btn:hover {
+            background: rgba(0, 150, 255, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 150, 255, 0.4);
+        }
+        
+        .video-info {
+            margin-top: 20px;
+            color: #a0d0ff;
+            font-size: 0.9rem;
+        }
+        
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 10, 20, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-container {
+            background: rgba(10, 25, 50, 0.95);
+            border: 2px solid rgba(0, 150, 255, 0.4);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 100, 255, 0.3);
+            position: relative;
+            animation: modalSlideIn 0.4s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        
+        .modal-header {
+            background: linear-gradient(90deg, rgba(0, 100, 200, 0.8), rgba(0, 150, 255, 0.6));
+            padding: 20px 30px;
+            border-radius: 13px 13px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 200, 255, 0.7);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .modal-close:hover {
+            transform: rotate(90deg) scale(1.2);
+        }
+        
+        .modal-content {
+            padding: 30px;
+        }
+        
+        .modal-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #c0d0ff;
+            margin-bottom: 20px;
+        }
+        
+        .modal-features {
+            list-style: none;
+            margin: 20px 0;
+        }
+        
+        .modal-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 150, 255, 0.2);
+            display: flex;
+            align-items: center;
+        }
+        
+        .modal-features li i {
+            color: #00ffaa;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* 页脚区域 */
+        footer {
+            background: rgba(5, 10, 30, 0.9);
+            padding: 80px 0 40px;
+            border-top: 1px solid rgba(0, 150, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 50px;
+            margin-bottom: 60px;
+        }
+        
+        .footer-section h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: #00ccff;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #00ccff, #0099ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(0, 150, 255, 0.2);
+            color: #80a0ff;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        
+        /* 页脚核心功能标签样式 */
+        .footer-function-tag {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 100, 200, 0.3);
+            border: 1px solid rgba(0, 200, 255, 0.4);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #b0e0ff;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .footer-function-tag:hover {
+            background: rgba(0, 150, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 150, 255, 0.3);
+            border-color: #00ccff;
+            color: #ffffff;
+        }
+        
+        .footer-function-tag i {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .main-title {
+                font-size: 2.8rem;
+            }
+            
+            .subtitle-center {
+                font-size: 1.3rem;
+            }
+            
+            .section-number {
+                font-size: 4rem;
+            }
+            
+            .section-title {
+                font-size: 1.8rem;
+            }
+            
+            .video-player {
+                height: 400px;
+            }
+            
+            .tech-tag {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+                min-width: 120px;
+            }
+            
+            .image-gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.2rem;
+                letter-spacing: 2px;
+            }
+            
+            .subtitle-center {
+                font-size: 1.1rem;
+                padding: 12px;
+                margin: 0 auto 30px auto;
+            }
+            
+            .section-number {
+                font-size: 3rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .content-card {
+                padding: 25px;
+            }
+            
+            .software-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
+            
+            .video-player {
+                height: 300px;
+            }
+            
+            .video-controls {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .tech-stack {
+                gap: 15px;
+            }
+            
+            .tech-tag {
+                padding: 8px 16px;
+                font-size: 0.85rem;
+                min-width: 110px;
+            }
+        }
+        
+        /* 动态效果 */
+        .glow-effect {
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px rgba(0, 150, 255, 0.5);
+            }
+            to {
+                box-shadow: 0 0 20px rgba(0, 150, 255, 0.8), 0 0 30px rgba(0, 200, 255, 0.6);
+            }
+        }
+        
+        /* 滚动指示器 */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #00ccff;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+        
+        .scroll-indicator i {
+            margin-top: 10px;
+            font-size: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 网格背景 -->
+    <div class="grid-bg"></div>
+    
+    <!-- 头部区域 -->
+    <header>
+        <div class="container">
+            <div class="title-container">
+                <h1 class="main-title">智眸·工业哨兵</h1>
+                
+                <!-- 完全居中的小标题 -->
+                <div class="subtitle-center">
+                    基于Edge-YOLO与端侧多模态大模型的自进化工业缺陷检测智能体
+                </div>
+                
+                <!-- 统一字体的技术标签 -->
+                <div class="tech-stack">
+                    <span class="tech-tag">Edge-YOLO</span>
+                    <span class="tech-tag">多模态大模型</span>
+                    <span class="tech-tag">端侧智能</span>
+                    <span class="tech-tag clickable" data-modal="spc-modal">SPC统计图表</span>
+                    <span class="tech-tag clickable" data-modal="heatmap-modal">缺陷热力图</span>
+                    <span class="tech-tag">工业缺陷检测</span>
+                    <span class="tech-tag">快慢双系统</span>
+                    <span class="tech-tag">零样本学习</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            <span>向下探索技术细节</span>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </header>
+    
+    <!-- 主要内容区域 -->
+    <main>
+        <div class="container">
+            <!-- 第一部分：软件功能与操作优势 -->
+            <section class="section" id="software-intro">
+                <div class="section-header">
+                    <div class="section-number">01</div>
+                    <h2 class="section-title">软件功能与操作优势</h2>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="content-subtitle"><i class="fas fa-desktop"></i> 专业工业检测软件</h3>
+                    <p class="content-text">
+                        <span class="highlight">智眸·工业哨兵</span>是一款专为高端电子制造设计的智能缺陷检测软件，集成了先进的人工智能算法与直观的用户界面，完全适配工业现场操作需求。
+                    </p>
+                    
+                    <div class="software-features">
+                        <div class="feature-card clickable-card" data-modal="spc-modal">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h4 class="feature-title">SPC统计图表</h4>
+                            <p class="content-text">
+                                集成专业统计过程控制(SPC)功能，实时生成<span class="highlight clickable-highlight" data-modal="spc-modal">Xbar-R控制图、P控制图、Cpk分析图</span>等，直观展示生产过程的稳定性与能力指数。
+                            </p>
+                        </div>
+                        
+                        <div class="feature-card clickable-card" data-modal="heatmap-modal">
+                            <div class="feature-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <h4 class="feature-title">缺陷热力图分析</h4>
+                            <p class="content-text">
+                                自动生成<span class="highlight clickable-highlight" data-modal="heatmap-modal">缺陷分布热力图</span>，直观显示产线上缺陷高发区域，帮助快速定位工艺问题根源，优化生产流程。
+                            </p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h4 class="feature-title">智能操作优化</h4>
+                            <p class="content-text">
+                                简化操作流程，<span class="highlight-green">缩短60%操作人员培训时间</span>，<span class="highlight-red">误操作率低于0.3%</span>，大幅提升产线效率与稳定性。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作优势展示 -->
+                <div class="content-card">
+                    <h3 class="content-subtitle"><i class="fas fa-tachometer-alt"></i> 操作效率提升</h3>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-value">60%</div>
+                            <div class="stat-label">培训时间缩短</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-value">&lt;0.3%</div>
+                            <div class="stat-label">误操作率</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-value">10ms</div>
+                            <div class="stat-label">单帧检测速度</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-value">99.5%</div>
+                            <div class="stat-label">缺陷识别准确率</div>
+                        </div>
+                    </div>
+                    
+                    <div class="advantage-list">
+                        <div class="advantage-item">
+                            <div class="advantage-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <h4 class="feature-title">极简培训体系</h4>
+                                <p class="content-text">采用直观的拖拽式界面设计与引导式操作流程，新员工<span class="highlight">仅需2小时</span>即可掌握基本操作，传统系统需要5天以上培训时间。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="advantage-item">
+                            <div class="advantage-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <h4 class="feature-title">防误操作设计</h4>
+                                <p class="content-text">多重确认机制与智能预警系统，关键操作需二次确认，危险操作自动拦截，确保<span class="highlight">误操作率低于0.3%</span>的工业级标准。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="advantage-item">
+                            <div class="advantage-icon">
+                                <i class="fas fa-industry"></i>
+                            </div>
+                            <div>
+                                <h4 class="feature-title">工业场景适配</h4>
+                                <p class="content-text">专为工业环境设计，支持<span class="highlight">手套操作、防尘防水、强光可视</span>，完全适配半导体、SMT等高端制造现场需求。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 图片展示区域 - 6张图片 -->
+            <section class="section" id="gallery">
+                <div class="section-header">
+                    <div class="section-number">02</div>
+                    <h2 class="section-title">软件界面与功能展示</h2>
+                </div>
+                
+                <div class="image-gallery">
+                    <!-- 1. 硬件视觉系统搭建 -->
+                    <div class="image-container">
+                        <img src="1.png" alt="硬件视觉系统搭建" class="gallery-image">
+                        <div class="image-overlay">
+                            <div class="image-title">硬件视觉系统搭建</div>
+                            <p class="content-text">工业相机与光源系统集成配置界</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 2. GUI界面展示 -->
+                    <div class="image-container">
+                        <img src="2.png" alt="GUI界面展示" class="gallery-image">
+                        <div class="image-overlay">
+                            <div class="image-title">GUI界面展示</div>
+                            <p class="content-text">直观的用户界面，支持拖拽操作与实时预览</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 3. AI缺陷检测结果 -->
+                    <div class="image-container">
+                        <img src="3.png" alt="AI缺陷检测结果" class="gallery-image">
+                        <div class="image-overlay">
+                            <div class="image-title">AI缺陷检测结果</div>
+                            <p class="content-text">Edge-YOLO实时缺陷识别与标注结果</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 4. SPC统计图表界面 -->
+                    <div class="image-container">
+                        <img src="4.png" alt="SPC统计图表界面" class="gallery-image">
+                        <div class="image-overlay">
+                            <div class="image-title">SPC统计图表界面</div>
+                            <p class="content-text">实时生成Xbar-R控制图与Cpk分析图表</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 5. 云端API调用 -->
+                    <div class="image-container">
+                        <img src="5.png" alt="云端API调用" class="gallery-image">
+                        <div class="image-overlay">
+                            <div class="image-title">云端API调用</div>
+                            <p class="content-text">支持云端部署与AI交流互动</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 6. 缺陷热力图分析 -->
+                    <div class="image-container">
+                        <img src="6.png" alt="缺陷热力图分析" class="gallery-image">
+                        <div class="image-overlay">
+                            <div class="image-title">缺陷热力图分析</div>
+                            <p class="content-text">可视化缺陷分布与高发区域定位</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- =================== 视频播放区域 =================== -->
+                <div class="video-section">
+                    <h3 class="content-subtitle" style="text-align: center; margin-bottom: 30px;">
+                        <i class="fas fa-video"></i> 团队及产品介绍视频
+                    </h3>
+                    
+                    <div class="video-container">
+                        <!-- 使用您的text.mp4视频文件 -->
+                        <video id="software-video" class="video-player" controls preload="metadata" poster="https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80">
+                            <!-- 主要视频源：text.mp4 -->
+                            <source src="text.mp4" type="video/mp4">
+                            
+                            <!-- 备用视频源（如果text.mp4格式有问题） -->
+                            <source src="text.webm" type="video/webm">
+                            <source src="text.ogg" type="video/ogg">
+                            
+                            <!-- 如果浏览器不支持video标签，显示此消息 -->
+                            <p>您的浏览器不支持HTML5视频播放。请下载视频：<a href="text.mp4" download>下载text.mp4视频文件</a></p>
+                        </video>
+                        
+                        <!-- 自定义控制条 -->
+                        <div class="video-controls">
+                            <button class="video-btn" onclick="playVideo()">
+                                <i class="fas fa-play"></i> 播放
+                            </button>
+                            <button class="video-btn" onclick="pauseVideo()">
+                                <i class="fas fa-pause"></i> 暂停
+                            </button>
+                            <button class="video-btn" onclick="restartVideo()">
+                                <i class="fas fa-redo"></i> 重播
+                            </button>
+                            <button class="video-btn" onclick="toggleFullscreen()">
+                                <i class="fas fa-expand"></i> 全屏
+                            </button>
+                            <button class="video-btn" onclick="downloadVideo()">
+                                <i class="fas fa-download"></i> 下载
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="video-info">
+                        <p></p>
+                        <p>建议在Wi-Fi环境下观看以获得最佳体验</p>
+                    </div>
+                </div>
+                <!-- =================== 视频播放区域结束 =================== -->
+            </section>
+            
+            <!-- 第三部分：项目研究的目的和基本思路 -->
+            <section class="section" id="purpose">
+                <div class="section-header">
+                    <div class="section-number">03</div>
+                    <h2 class="section-title">项目研究的目的和基本思路</h2>
+                </div>
+                
+                <div class="content-card">
+                    <h3 class="content-subtitle"><i class="fas fa-bullseye"></i> 研究目的</h3>
+                    <p class="content-text">
+                        面对高端电子制造（如半导体、SMT贴片）向高密度、微型化发展的趋势，传统机器视觉检测（AOI）面临<span class="highlight">"罕见缺陷识别难（长尾效应）"</span>、<span class="highlight">"换线数据标注成本高（冷启动慢）"</span>及<span class="highlight">"缺乏逻辑推理能力"</span>三大痛点。
+                    </p>
+                    <p class="content-text">
+                        本项目旨在突破传统"预定义规则"或"静态深度模型"的局限，融合多模态大模型（LMM）与边缘计算技术，构建一个具备<span class="highlight">自主认知、即时学习、自然交互能力</span>的工业质检智能体（Agent）。该智能体不仅能实现毫秒级精准检测，更能像人类专家一样理解缺陷成因，大幅降低产线数字化转型的技术门槛与维护成本。
+                    </p>
+                </div>
+                
+                <!-- 技术架构图 - 改为插入luxiang.png图片 -->
+                <div class="architecture-diagram">
+                    <h3 class="architecture-title">系统技术架构图</h3>
+                    <div class="architecture-image-container">
+                        <img src="luxiang.png" alt="系统技术架构图" class="architecture-image">
+                        <div class="architecture-overlay">
+                            <div class="image-title">智眸·工业哨兵系统架构</div>
+                            <p class="content-text">Edge-YOLO与端侧多模态大模型协同架构</p>
+                        </div>
+                    </div>
+                    <div class="video-info" style="margin-top: 20px;">
+                        <p>架构说明：展示了Edge-YOLO快系统与端侧多模态大模型慢系统的协同工作流程</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 第四部分：项目特点（创新点） -->
+            <section class="section" id="innovation">
+                <div class="section-header">
+                    <div class="section-number">04</div>
+                    <h2 class="section-title">项目特点与创新点</h2>
+                </div>
+                
+                <div class="software-features">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-archway"></i>
+                        </div>
+                        <h4 class="innovation-title">架构创新：快慢双系统端侧Agent认知模型</h4>
+                        <p class="innovation-content">
+                            解决了传统小模型"懂识别不懂逻辑"和大模型"懂逻辑但速度慢"的工业落地矛盾。首创Edge-YOLO Hybrid（快）与Mini-LMM（慢）的级联架构。
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h4 class="innovation-title">数据机制创新：Grounding DINO驱动的零门槛冷启动体系</h4>
+                        <p class="innovation-content">
+                            彻底颠覆了"大量采集→人工标注→训练"的传统低效流程。构建了Prompt-to-Data的自监督数据闭环。
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h4 class="innovation-title">交互形态创新：所见即所得的对话式质检卫士</h4>
+                        <p class="innovation-content">
+                            将复杂的参数调试转变为自然语言交互，降低使用门槛，并提供AI专家问答与行业方案一键生成。
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+    
+    <!-- 页脚区域 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>智眸·工业哨兵</h3>
+                    <p class="content-text">基于Edge-YOLO与端侧多模态大模型的自进化工业缺陷检测智能体，为高端电子制造提供革命性的质检解决方案。</p>
+                    <div class="tech-stack" style="margin-top: 20px;">
+                        <!-- 点击可弹出介绍的技术标签 -->
+                        <span class="tech-tag clickable" data-modal="spc-modal">SPC统计图表</span>
+                        <span class="tech-tag clickable" data-modal="heatmap-modal">缺陷热力图</span>
+                        <span class="tech-tag">工业AI</span>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>核心功能</h3>
+                    <div class="advantage-list">
+                        <!-- 可点击的核心功能标签 -->
+                        <div class="advantage-item" style="padding: 10px; margin-bottom: 10px; cursor: pointer;" data-modal="spc-modal">
+                            <div class="advantage-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <p class="content-text">SPC统计过程控制</p>
+                            </div>
+                        </div>
+                        
+                        <div class="advantage-item" style="padding: 10px; margin-bottom: 10px; cursor: pointer;" data-modal="heatmap-modal">
+                            <div class="advantage-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div>
+                                <p class="content-text">缺陷热力图分析</p>
+                            </div>
+                        </div>
+                        
+                        <div class="advantage-item" style="padding: 10px; margin-bottom: 10px;">
+                            <div class="advantage-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div>
+                                <p class="content-text">极简操作界面</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>联系我们</h3>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div>
+                                <strong>技术咨询</strong>
+                                <p>ctz0914@qq.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div>
+                                <strong>商务合作</strong>
+                                <p>135 6084 3742</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <strong>研发中心</strong>
+                                <p>东莞理工学院8b117光电创新创业实验室</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>© 2026 智眸·工业哨兵 版权所有 | 光电创新创业实验室研发</p>
+                <p>简化操作流程，缩短60%操作人员培训时间，误操作率低于0.3%，完全适配工业现场操作需求</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- SPC统计图表弹窗 -->
+    <div class="modal-overlay" id="spc-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">SPC统计过程控制</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-content">
+                <img src="4.png" alt="SPC统计图表" class="modal-image">
+                <p class="modal-description">
+                    <strong>SPC（Statistical Process Control，统计过程控制）</strong>是智眸·工业哨兵的核心功能之一，通过对生产过程中的关键参数进行实时监控和统计分析，确保产品质量稳定。
+                </p>
+                <p class="modal-description">
+                    系统集成了多种SPC控制图表，包括Xbar-R图、P图、Cpk分析图等，能够实时反映生产过程的稳定性和能力指数，为质量改进提供数据支持。
+                </p>
+                
+                <h4 class="feature-title" style="margin-top: 25px;">主要功能特性：</h4>
+                <ul class="modal-features">
+                    <li><i class="fas fa-chart-line"></i> 实时数据采集与监控</li>
+                    <li><i class="fas fa-calculator"></i> 自动计算过程能力指数Cpk/Ppk</li>
+                    <li><i class="fas fa-bell"></i> 异常自动报警与预警机制</li>
+                    <li><i class="fas fa-download"></i> 数据导出与报告生成</li>
+                    <li><i class="fas fa-history"></i> 历史数据追溯与分析</li>
+                    <li><i class="fas fa-sliders-h"></i> 自定义控制限与规格限</li>
+                </ul>
+                
+                <h4 class="feature-title" style="margin-top: 25px;">应用场景：</h4>
+                <p class="modal-description">
+                    适用于半导体制造、SMT贴片、精密机械加工等高端制造行业，帮助企业实现生产过程的数字化、智能化管理，降低不良率，提高生产效率。
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 缺陷热力图分析弹窗 -->
+    <div class="modal-overlay" id="heatmap-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">缺陷热力图分析</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-content">
+                <img src="6.png" alt="缺陷热力图" class="modal-image">
+                <p class="modal-description">
+                    <strong>缺陷热力图分析</strong>是智眸·工业哨兵的创新功能，通过可视化技术将缺陷分布情况以热力图形式直观展示，帮助快速定位质量问题根源。
+                </p>
+                <p class="modal-description">
+                    系统能够自动分析缺陷在产线、产品、时间等维度的分布规律，识别高发区域和趋势，为工艺优化和设备维护提供科学依据。
+                </p>
+                
+                <h4 class="feature-title" style="margin-top: 25px;">核心功能特性：</h4>
+                <ul class="modal-features">
+                    <li><i class="fas fa-fire"></i> 多维度的缺陷分布可视化</li>
+                    <li><i class="fas fa-map-marked-alt"></i> 产线布局与缺陷位置映射</li>
+                    <li><i class="fas fa-chart-pie"></i> 缺陷类型与频率统计分析</li>
+                    <li><i class="fas fa-search"></i> 热点区域自动识别与标注</li>
+                    <li><i class="fas fa-calendar-alt"></i> 时间趋势分析与预测</li>
+                    <li><i class="fas fa-cogs"></i> 与SPC系统深度集成</li>
+                </ul>
+                
+                <h4 class="feature-title" style="margin-top: 25px;">技术优势：</h4>
+                <p class="modal-description">
+                    采用先进的聚类算法和机器学习技术，能够自动识别缺陷模式，提供智能分析建议。支持自定义热力图参数，适应不同生产场景的需求。
+                </p>
+                
+                <h4 class="feature-title" style="margin-top: 25px;">应用价值：</h4>
+                <p class="modal-description">
+                    帮助企业快速定位工艺瓶颈，优化生产流程，减少重复缺陷发生，提升整体产品质量和良率。特别适用于复杂装配线和多工序生产环境。
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 滚动动画效果
+        function scrollAnimation() {
+            const sections = document.querySelectorAll('.section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (sectionTop < windowHeight * 0.85) {
+                    section.classList.add('visible');
+                }
+            });
+        }
+        
+        // =================== 视频播放控制函数 ===================
+        // 获取视频元素
+        const video = document.getElementById('software-video');
+        
+        // 播放视频
+        function playVideo() {
+            video.play();
+        }
+        
+        // 暂停视频
+        function pauseVideo() {
+            video.pause();
+        }
+        
+        // 重新播放视频
+        function restartVideo() {
+            video.currentTime = 0;
+            video.play();
+        }
+        
+        // 全屏切换
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                } else if (video.webkitRequestFullscreen) {
+                    video.webkitRequestFullscreen();
+                } else if (video.msRequestFullscreen) {
+                    video.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+        
+        // 下载视频
+        function downloadVideo() {
+            const link = document.createElement('a');
+            link.href = 'text.mp4';
+            link.download = '智眸工业哨兵演示视频.mp4';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // =================== 弹窗控制函数 ===================
+        // 打开弹窗
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // 防止背景滚动
+            }
+        }
+        
+        // 关闭弹窗
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto'; // 恢复背景滚动
+            }
+        }
+        
+        // 关闭所有弹窗
+        function closeAllModals() {
+            const modals = document.querySelectorAll('.modal-overlay');
+            modals.forEach(modal => {
+                modal.classList.remove('active');
+            });
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 视频加载状态提示
+        video.addEventListener('waiting', function() {
+            console.log('视频正在加载...');
+        });
+        
+        video.addEventListener('canplay', function() {
+            console.log('视频可以播放了');
+        });
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始显示第一段内容
+            document.querySelectorAll('.section')[0].classList.add('visible');
+            
+            // 监听滚动事件
+            window.addEventListener('scroll', scrollAnimation);
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 100,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // 添加标题动画
+            const mainTitle = document.querySelector('.main-title');
+            setInterval(() => {
+                const intensity = Math.random() * 0.3 + 0.7;
+                mainTitle.style.opacity = intensity;
+            }, 2000);
+            
+            // 动态更新版权年份
+            const currentYear = new Date().getFullYear();
+            const copyrightText = document.querySelector('.copyright p:first-child');
+            copyrightText.textContent = copyrightText.textContent.replace('2024', currentYear);
+            
+            // 为技术标签添加随机颜色效果
+            const techTags = document.querySelectorAll('.tech-tag');
+            techTags.forEach(tag => {
+                // 随机延迟动画
+                const delay = Math.random() * 2;
+                tag.style.animationDelay = `${delay}s`;
+                
+                // 鼠标悬停时的特殊效果
+                tag.addEventListener('mouseenter', function() {
+                    this.style.transform = `translateY(-8px) scale(1.05) rotate(${Math.random() * 2 - 1}deg)`;
+                });
+                
+                tag.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1) rotate(0deg)';
+                });
+            });
+            
+            // =================== 弹窗事件绑定 ===================
+            // 绑定所有可点击的元素
+            const clickableElements = document.querySelectorAll('.clickable, .advantage-item[data-modal], .clickable-card, .clickable-highlight');
+            clickableElements.forEach(element => {
+                element.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 防止事件冒泡
+                    const modalId = this.getAttribute('data-modal');
+                    if (modalId) {
+                        openModal(modalId);
+                    }
+                });
+            });
+            
+            // 绑定关闭按钮
+            const closeButtons = document.querySelectorAll('.modal-close');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const modal = this.closest('.modal-overlay');
+                    if (modal) {
+                        closeModal(modal.id);
+                    }
+                });
+            });
+            
+            // 点击弹窗背景关闭
+            const modals = document.querySelectorAll('.modal-overlay');
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal(this.id);
+                    }
+                });
+            });
+            
+            // ESC键关闭弹窗
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeAllModals();
+                }
+            });
+            
+            // 为highlight添加悬停效果
+            const highlights = document.querySelectorAll('.highlight');
+            highlights.forEach(highlight => {
+                highlight.addEventListener('mouseenter', function() {
+                    if (this.classList.contains('clickable-highlight')) {
+                        this.style.transform = 'translateY(-3px)';
+                        this.style.boxShadow = '0 8px 20px rgba(0, 255, 170, 0.3)';
+                    }
+                });
+                
+                highlight.addEventListener('mouseleave', function() {
+                    if (this.classList.contains('clickable-highlight')) {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
